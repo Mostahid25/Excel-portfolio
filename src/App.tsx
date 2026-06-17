@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   FileSpreadsheet,
@@ -24,8 +24,6 @@ import {
   Phone,
   MapPin,
   ClipboardList,
-  Camera,
-  Upload,
   User,
   Download
 } from 'lucide-react';
@@ -42,7 +40,6 @@ import {
 } from './data';
 
 // Import custom components
-import ContactForm from './components/ContactForm';
 
 export default function App() {
   const [theme, setTheme] = useState<string>(() => {
@@ -56,54 +53,6 @@ export default function App() {
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // Profile picture customizable state
-  const [avatarSrc, setAvatarSrc] = useState<string | null>(() => {
-    return localStorage.getItem('user-avatar-base64') || null;
-  });
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setAvatarSrc(base64String);
-        localStorage.setItem('user-avatar-base64', base64String);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setAvatarSrc(base64String);
-        localStorage.setItem('user-avatar-base64', base64String);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
 
   // Close mobile menu helper
   const handleNavClick = (id: string) => {
@@ -121,6 +70,34 @@ export default function App() {
     { id: 'experience-section', label: 'Experience' },
     { id: 'certifications-section', label: 'Certifications' },
   ];
+
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, ease: "easeOut" } 
+    }
+  };
+
+  const staggerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-[#080c14] text-slate-100 flex flex-col font-sans selection-accent ${theme}`}>
@@ -163,7 +140,7 @@ export default function App() {
                   <span className="relative z-10">{item.label}</span>
                 </button>
               ))}
-              <button onClick={() => handleNavClick('contact-section')} className="text-accent border border-accent-dim bg-accent-dim/40 px-3 py-1.5 rounded-md hover-bg-accent transition-all active:scale-95 ml-2">Inquire</button>
+              <button onClick={() => handleNavClick('contact-section')} className="text-accent border border-accent-dim bg-accent-dim/40 px-3 py-1.5 rounded-md hover-bg-accent transition-all active:scale-95 ml-2">Get in Touch</button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -199,7 +176,7 @@ export default function App() {
                   </button>
                 ))}
                 
-                <button onClick={() => handleNavClick('contact-section')} className="block w-full text-center py-2.5 mt-2 text-accent border border-accent-dim bg-accent-dim/40 rounded-md">Inquire</button>
+                <button onClick={() => handleNavClick('contact-section')} className="block w-full text-center py-2.5 mt-2 text-accent border border-accent-dim bg-accent-dim/40 rounded-md">Get in Touch</button>
               </div>
             </motion.div>
           )}
@@ -210,10 +187,16 @@ export default function App() {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 space-y-24 print:p-0">
         
         {/* 2. Hero Header & Contact Coordination Section */}
-        <section id="about-section" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border-b border-slate-900 pb-16 scroll-mt-20">
+        <motion.section 
+          id="about-section" 
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border-b border-slate-900 pb-16 scroll-mt-20"
+          initial="hidden"
+          animate="visible"
+          variants={staggerVariants}
+        >
           
           {/* Left Hero block: Text info */}
-          <div className="lg:col-span-8 text-left space-y-6">
+          <motion.div variants={itemVariants} className="lg:col-span-8 text-left space-y-6">
             <div className="space-y-2">
               <span className="text-xs font-mono font-bold text-accent tracking-widest uppercase block animate-pulse">
                 EXCEL ANALYST · PORTFOLIO
@@ -247,80 +230,44 @@ export default function App() {
             </div>
 
             {/* Explanatory bio */}
-            <div className="space-y-4">
+            <motion.div variants={itemVariants} className="space-y-4">
               <h3 className="text-xs font-mono font-bold text-slate-450 uppercase tracking-widest">
                 // ABOUT
               </h3>
               <p className="text-slate-400 text-sm md:text-base leading-relaxed max-w-3xl">
                 {BIO_DATA.about}
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* Right Hero block: High fidelity customizable portrait circle */}
-          <div className="lg:col-span-4 flex justify-center">
-            <div 
-              className={`relative group cursor-pointer select-none transition-transform duration-300 active:scale-98 ${isDragging ? 'scale-105' : ''}`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={triggerFileInput}
-              title="Click or drag and drop to upload your professional picture!"
-            >
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleAvatarChange} 
-                accept="image/*" 
-                className="hidden" 
-              />
-
+          {/* Right Hero block: High fidelity profile picture */}
+          <motion.div variants={itemVariants} className="lg:col-span-4 flex justify-center">
+            <div className="relative group select-none">
+              
               {/* Outer light glow */}
-              <div className="absolute inset-0 bg-gradient-to-tr gradient-accent rounded-full blur-2xl opacity-15 group-hover:opacity-25 transition-all duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-tr gradient-accent rounded-full blur-2xl opacity-15 transition-all duration-700" />
               
               {/* Main Circular Frame */}
-              <div className={`w-48 h-48 md:w-60 md:h-60 rounded-full bg-[#121926] border-2 relative z-10 overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-500 ${isDragging ? 'border-accent scale-102 shadow-accent-dim' : 'border-slate-800 group-hover:border-accent/40'}`}>
+              <div className="w-48 h-48 md:w-60 md:h-60 rounded-full bg-[#121926] border-2 border-slate-800 relative z-10 overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-500">
                 
-                {avatarSrc ? (
-                  <img 
-                    src={avatarSrc} 
-                    alt="G.M Mostahid Profile" 
-                    className="w-full h-full object-cover object-center relative z-10"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : (
-                  /* Original High Fidelity Vector SVG representation as default */
-                  <svg className="w-[85%] h-[85%] text-slate-450 relative z-10" viewBox="0 0 100 100" fill="none">
-                    {/* Outer circle rings */}
-                    <circle cx="50" cy="50" r="46" stroke="#1f293d" strokeWidth="1" strokeDasharray="3 3" />
-                    <circle cx="50" cy="50" r="42" stroke="var(--color-accent-primary)" strokeWidth="0.5" strokeOpacity="0.4" />
-                    
-                    {/* Dynamic analyst character silhouette icon */}
-                    <path d="M50 20 C42 20 37 25 37 32 C37 39 42 41 45 44 C34 46 22 55 22 66 C22 75 78 75 78 66 C78 55 66 46 55 44 C58 41 63 39 63 32 C63 25 58 20 50 20 Z" fill="#2d3748" opacity="0.85" />
-                    
-                    {/* Analysts reading glasses in green glow */}
-                    <rect x="42" y="29" width="6" height="4" rx="1" stroke="var(--color-accent-primary)" strokeWidth="1.5" />
-                    <rect x="52" y="29" width="6" height="4" rx="1" stroke="var(--color-accent-primary)" strokeWidth="1.5" />
-                    <line x1="48" y1="31" x2="52" y2="31" stroke="var(--color-accent-primary)" strokeWidth="1.5" />
-                    
-                    {/* Reflective mathematical cells flying background */}
-                    <path d="M22 30 H28" stroke="var(--color-accent-primary)" strokeOpacity="0.5" />
-                    <path d="M72 45 H78" stroke="#06b6d4" strokeOpacity="0.5" />
-                    <circle cx="28" cy="40" r="1.5" fill="var(--color-accent-primary)" />
-                    <circle cx="70" cy="27" r="2" fill="#06b6d4" />
-                  </svg>
-                )}
+                {/* Fallback pattern behind the image */}
+                <svg className="absolute inset-0 w-[85%] h-[85%] m-auto text-slate-450 z-0 opacity-20" viewBox="0 0 100 100" fill="none">
+                  <circle cx="50" cy="50" r="46" stroke="#1f293d" strokeWidth="1" strokeDasharray="3 3" />
+                  <circle cx="50" cy="50" r="42" stroke="var(--color-accent-primary)" strokeWidth="0.5" strokeOpacity="0.4" />
+                  <path d="M50 20 C42 20 37 25 37 32 C37 39 42 41 45 44 C34 46 22 55 22 66 C22 75 78 75 78 66 C78 55 66 46 55 44 C58 41 63 39 63 32 C63 25 58 20 50 20 Z" fill="#2d3748" opacity="0.85" />
+                </svg>
 
-                {/* Upload action overlay on hover */}
-                <div className="absolute inset-0 bg-[#080c14eb] bg-opacity-70 flex flex-col items-center justify-center p-4 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                  <Camera className="w-6 h-6 text-accent mb-1 animate-bounce" />
-                  <span className="text-[9px] font-mono font-bold text-slate-100 uppercase tracking-widest block">
-                    {avatarSrc ? "Change Photo" : "Upload Photo"}
-                  </span>
-                  <span className="text-[7px] font-mono text-slate-450 tracking-wider block mt-1">
-                    Drag-and-drop or select file
-                  </span>
-                </div>
+                {/* Permanent profile picture */}
+                <img 
+                  src="/profile.jpg" 
+                  alt="G.M Mostahid Profile" 
+                  className="w-full h-full object-cover object-center relative z-10"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    // Quick fallback to hide the image tag if the file isn't uploaded yet
+                    e.currentTarget.style.opacity = '0';
+                  }}
+                />
 
                 {/* Floating G.M Mostahid tag */}
                 <div className="absolute bottom-4 z-30 bg-[#080c14] border border-accent-dim rounded-full px-3 py-1 font-mono text-4xs text-accent shadow-md">
@@ -328,28 +275,20 @@ export default function App() {
                 </div>
 
               </div>
-
-              {/* Reset Photo option if photo exists */}
-              {avatarSrc && (
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAvatarSrc(null);
-                    localStorage.removeItem('user-avatar-base64');
-                  }}
-                  className="absolute -top-1 -right-1 z-30 w-7 h-7 bg-slate-900 border border-slate-800 text-slate-400 hover:text-red-400 hover:border-red-500/20 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 no-print"
-                  title="Remove photo"
-                >
-                  <span className="text-sm">×</span>
-                </button>
-              )}
             </div>
-          </div>
+          </motion.div>
 
-        </section>
+        </motion.section>
 
         {/* 3. At a Glance Statistics Bento Grid */}
-        <section id="stats-section" className="scroll-mt-20">
+        <motion.section 
+          id="stats-section" 
+          className="scroll-mt-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={sectionVariants}
+        >
           <div className="text-left mb-6">
             <span className="text-xs font-mono font-bold text-slate-500 block uppercase tracking-wide">
               // AT A GLANCE
@@ -372,10 +311,17 @@ export default function App() {
               </motion.div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
         {/* 4. Core Compentencies progress indicators */}
-        <section id="skills-section" className="border-b border-slate-900 pb-16 scroll-mt-20">
+        <motion.section 
+          id="skills-section" 
+          className="border-b border-slate-900 pb-16 scroll-mt-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={sectionVariants}
+        >
           <div className="text-left mb-8">
             <span className="text-xs font-mono font-bold text-slate-500 block uppercase tracking-wide">
               // EXPERT SKILLSETS
@@ -404,10 +350,17 @@ export default function App() {
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
 
         {/* 5. Featured Projects Section */}
-        <section id="projects-section" className="scroll-mt-20">
+        <motion.section 
+          id="projects-section" 
+          className="scroll-mt-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={sectionVariants}
+        >
           
           <div className="text-left mb-8">
             <span className="text-xs font-mono font-bold text-slate-500 block uppercase tracking-wide">
@@ -542,10 +495,17 @@ export default function App() {
             })}
           </div>
 
-        </section>
+        </motion.section>
 
         {/* 6. Professional Experience Chronology */}
-        <section id="experience-section" className="border-t border-slate-900 pt-16 scroll-mt-20">
+        <motion.section 
+          id="experience-section" 
+          className="border-t border-slate-900 pt-16 scroll-mt-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={sectionVariants}
+        >
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
             
@@ -592,10 +552,16 @@ export default function App() {
             </div>
 
           </div>
-        </section>
+        </motion.section>
 
         {/* 7. Tools & Technologies */}
-        <section className="border-t border-slate-900 pt-16 text-left">
+        <motion.section 
+          className="border-t border-slate-900 pt-16 text-left"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={sectionVariants}
+        >
           
           <div className="space-y-4">
             <span className="text-xs font-mono font-bold text-slate-500 block uppercase tracking-wide">
@@ -607,19 +573,26 @@ export default function App() {
             <div className="flex flex-wrap gap-2 pt-2">
               {TOOLS_DATA.map(tool => (
                 <span
-                  key={tool}
+                  key={tool.name}
                   className="bg-[#121926] border border-slate-805 text-slate-300 font-mono text-2xs px-3.5 py-1.5 rounded-md hover:border-accent-dim transition-all select-none"
                 >
-                  🛠️ {tool}
+                  {tool.icon} {tool.name}
                 </span>
               ))}
             </div>
           </div>
 
-        </section>
+        </motion.section>
 
         {/* 7.5. Academics & Certifications */}
-        <section id="certifications-section" className="border-t border-slate-900 pt-16 text-left scroll-mt-20">
+        <motion.section 
+          id="certifications-section" 
+          className="border-t border-slate-900 pt-16 text-left scroll-mt-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={sectionVariants}
+        >
           
           <div className="space-y-4">
             <span className="text-xs font-mono font-bold text-slate-500 block uppercase tracking-wide">
@@ -635,11 +608,11 @@ export default function App() {
                 <div className="flex items-center gap-3">
                   <GraduationCap className="w-6 h-6 text-accent shrink-0" />
                   <div>
-                    <span className="text-slate-200 font-bold block leading-none">Bsc in Statistics</span>
+                    <span className="text-slate-200 font-bold block leading-none">BSc in Statistics</span>
                     <span className="text-3xs text-slate-500 mt-1.5 block">Khulna Academic College</span>
                   </div>
                 </div>
-                <span className="text-3xs text-accent bg-accent-dim px-2.5 py-1 rounded font-bold">Graduated</span>
+                <span className="text-3xs text-yellow-500 bg-yellow-500/10 px-2.5 py-1 rounded font-bold">Expected 2027</span>
               </div>
 
               {CERTIFICATIONS_DATA.map(cert => (
@@ -666,15 +639,57 @@ export default function App() {
             </div>
           </div>
 
-        </section>
+        </motion.section>
 
-        {/* 9. Contact form requested */}
-        <section id="contact-section" className="border-t border-slate-900 pt-16 pb-8 scroll-mt-20 scroll-offset no-print">
-          <ContactForm />
-        </section>
+        {/* 9. Contact Section */}
+        <motion.section 
+          id="contact-section" 
+          className="border-t border-slate-900 pt-16 pb-8 scroll-mt-20 scroll-offset no-print"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={sectionVariants}
+        >
+          <div className="text-center space-y-6 max-w-3xl mx-auto">
+            <span className="text-xs font-mono font-bold text-slate-500 block uppercase tracking-wide">
+              // LET'S CONNECT
+            </span>
+            <h2 className="text-3xl md:text-4xl font-display font-medium text-slate-100">Get in Touch</h2>
+            <p className="text-slate-400 font-sans leading-relaxed">
+              I'm always open to discussing data analysis projects, opportunities, or just about data in general. 
+              Feel free to connect.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-8">
+              <a href={`mailto:${BIO_DATA.email}`} className="flex items-center gap-3 text-slate-300 hover:text-accent transition-colors group">
+                <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-accent">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <span className="font-mono text-sm">{BIO_DATA.email}</span>
+              </a>
+              <a href={`https://${BIO_DATA.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-slate-300 hover:text-[#0a66c2] transition-colors group">
+                <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-[#0a66c2]">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                </div>
+                <span className="font-mono text-sm">LinkedIn</span>
+              </a>
+              <a href={`tel:${BIO_DATA.phone}`} className="flex items-center gap-3 text-slate-300 hover:text-accent transition-colors group">
+                <div className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center group-hover:border-accent">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <span className="font-mono text-sm">{BIO_DATA.phone}</span>
+              </a>
+            </div>
+          </div>
+        </motion.section>
 
         {/* Resume Download Section */}
-        <section className="border-t border-slate-900 pt-16 pb-16 text-center scroll-mt-20 no-print flex flex-col items-center justify-center">
+        <motion.section 
+          className="border-t border-slate-900 pt-16 pb-16 text-center scroll-mt-20 no-print flex flex-col items-center justify-center"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={sectionVariants}
+        >
           <p className="text-slate-400 font-mono text-xs mb-6">// FULL PROFESSIONAL RESUME // </p>
           <a
             href="https://drive.google.com/drive/folders/19Yja9AjieCxZrlrln7hiMGxCCnOUv_nD?usp=sharing"
@@ -685,7 +700,7 @@ export default function App() {
             <Download className="w-5 h-5" />
             Download Resume
           </a>
-        </section>
+        </motion.section>
 
       </main>
 

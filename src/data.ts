@@ -94,16 +94,16 @@ export const EXPERIENCE_DATA: ExperienceItem[] = [
 ];
 
 export const TOOLS_DATA = [
-  "Microsoft Excel",
-  "Power BI",
-  "Power Query",
-  "Power Pivot",
-  "VBA",
-  "DAX",
-  "M Language",
-  "SQL (basic)",
-  "Google Sheets",
-  "SharePoint"
+  { name: "Microsoft Excel", icon: "📊" },
+  { name: "Power BI", icon: "📈" },
+  { name: "Power Query", icon: "🔄" },
+  { name: "Power Pivot", icon: "⚙️" },
+  { name: "VBA", icon: "💻" },
+  { name: "DAX", icon: "ƒx" },
+  { name: "M Language", icon: "📝" },
+  { name: "SQL (basic)", icon: "🗄️" },
+  { name: "Google Sheets", icon: "📄" },
+  { name: "SharePoint", icon: "☁️" }
 ];
 
 export const CERTIFICATIONS_DATA = [
@@ -125,5 +125,5 @@ export const BIO_DATA = {
   phone: "+8801771426048",
   linkedin: "linkedin.com/in/mostahid",
   location: "Khulna, Bangladesh",
-  education: "Bsc in Statistics"
+  education: "BSc in Statistics (Expected 2027)"
 };
