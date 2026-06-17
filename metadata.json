@@ -1,0 +1,6 @@
+{
+  "name": "Excel Analyst Portfolio",
+  "description": "An interactive portfolio for G.M Mostahid, Excel Analyst, featuring interactive dashboard widgets, live VBA automation templates, Power Query schemas, and resume builders.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
